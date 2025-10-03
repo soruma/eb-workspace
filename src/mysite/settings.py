@@ -26,8 +26,10 @@ SECRET_KEY = 'django-insecure-xitox7-=ids26yzc#nzbd4o+ap_32@6s&ln+hq=z=(g0ni$+^j
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+if "IS_AWS" in os.environ:
+    ALLOWED_HOSTS = ["eb-tutorial-dev.ap-northeast-1.elasticbeanstalk.com"]
+else:
+    ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -75,19 +77,36 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('MYSQL_DATABASE', 'test_database'),
-        'USER': os.environ.get('MYSQL_USER', 'docker'),
-        'PASSWORD': os.environ.get('MYSQL_PASSWORD', 'docker'),
-        'HOST': os.environ.get('MYSQL_HOST', 'localhost'),
-        'PORT': os.environ.get('MYSQL_PORT', '3306'),
-        'OPTIONS': {
-            'charset': 'utf8mb4',
-        },
+# Production database settings for RDS
+if 'RDS_HOSTNAME' in os.environ:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ['RDS_DB_NAME'],
+            'USER': os.environ['RDS_USERNAME'],
+            'PASSWORD': os.environ['RDS_PASSWORD'],
+            'HOST': os.environ['RDS_HOSTNAME'],
+            'PORT': os.environ['RDS_PORT'],
+            'OPTIONS': {
+                'charset': 'utf8mb4',
+            },
+        }
     }
-}
+else:
+    # Development database settings
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ.get('MYSQL_DATABASE', 'test_database'),
+            'USER': os.environ.get('MYSQL_USER', 'docker'),
+            'PASSWORD': os.environ.get('MYSQL_PASSWORD', 'docker'),
+            'HOST': os.environ.get('MYSQL_HOST', 'localhost'),
+            'PORT': os.environ.get('MYSQL_PORT', '3306'),
+            'OPTIONS': {
+                'charset': 'utf8mb4',
+            },
+        }
+    }
 
 
 # Password validation
